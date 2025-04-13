@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Your Profile</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    {% if user.userprofile.profile_picture %}
+                        <img src="{{ user.userprofile.profile_picture.url }}" class="rounded-circle" width="150" height="150">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150" class="rounded-circle">
+                    {% endif %}
+                    <h5 class="mt-3">{{ user.username }}</h5>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ profile_form|crispy }}
+                    <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Stream Actions</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'go_live' %}" class="btn btn-danger btn-lg w-100">
+                            <i class="bi bi-broadcast"></i><br>
+                            Go Live
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'live_now' %}" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-tv"></i><br>
+                            Live Now
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'saved_streams' %}" class="btn btn-info btn-lg w-100">
+                            <i class="bi bi-save"></i><br>
+                            Saved Streams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5>Currently Live</h5>
+            </div>
+            <div class="card-body">
+                {% if live_streams %}
+                    <div class="list-group">
+                        {% for stream in live_streams %}
+                            <a href="{% url 'stream_view' stream.stream_key %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ stream.title }}</h5>
+                                    <small>Live now</small>
+                                </div>
+                                <p class="mb-1">Streaming by {{ stream.user.username }}</p>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No one is currently live. Be the first to <a href="{% url 'go_live' %}">go live</a>!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

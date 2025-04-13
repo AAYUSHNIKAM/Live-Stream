@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Streams{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Your Saved Streams</h3>
+            </div>
+            <div class="card-body">
+                {% if saved_streams %}
+                    <div class="list-group">
+                        {% for saved in saved_streams %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ saved.live_stream.title }}</h5>
+                                    <small>Saved {{ saved.saved_at|timesince }} ago</small>
+                                </div>
+                                <p class="mb-1">Originally streamed by {{ saved.live_stream.user.username }}</p>
+                                {% if saved.video_file %}
+                                    <a href="{{ saved.video_file.url }}" class="btn btn-sm btn-primary mt-2">Watch</a>
+                                {% else %}
+                                    <span class="text-muted">No video available</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        You haven't saved any streams yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

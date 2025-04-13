@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ stream.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    #video-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    #live-video {
+        width: 100%;
+        background-color: #000;
+    }
+    #viewer-count {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0,0,0,0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+    #end-stream-btn {
+        margin-top: 20px;
+    }
+    #stream-status {
+        margin-top: 10px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Hidden elements to store Django variables -->
+<div id="stream-data" 
+     data-stream-key="{{ stream_key|escapejs }}"
+     data-is-owner="{% if is_owner %}true{% else %}false{% endif %}"
+     style="display: none;">
+</div>
+
+<script>
+    // Extract configuration from HTML data attributes
+    document.addEventListener('DOMContentLoaded', function() {
+        const streamData = document.getElementById('stream-data');
+        window.streamConfig = {
+            streamKey: streamData.dataset.streamKey,
+            isOwner: streamData.dataset.isOwner === 'true',
+            wsProtocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
+            wsHost: window.location.host,
+            mediaConstraints: {
+                video: true,
+                audio: true
+            },
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        };
+    });
+</script>
+<script src="{% static 'streamapp/js/stream.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">{{ stream.title }}</h3>
+                <p class="text-center">Streaming by {{ stream.user.username }}</p>
+            </div>
+            <div class="card-body">
+                <div id="video-container">
+                    <video id="live-video" autoplay playsinline muted></video>
+                    <div id="viewer-count">0 viewers</div>
+                </div>
+                <div id="stream-status" class="text-center"></div>
+                
+                {% if is_owner %}
+                    <form method="post" action="{% url 'end_stream' stream_key %}" class="text-center" id="end-stream-form">
+                        {% csrf_token %}
+                        <button type="button" id="end-stream-btn" class="btn btn-danger">End Stream</button>
+                        <div id="save-options" class="mt-3" style="display: none;">
+                            <p>Do you want to save this stream?</p>
+                            <button type="submit" name="save_stream" class="btn btn-primary me-2">Yes, Save</button>
+                            <button type="submit" class="btn btn-secondary">No, Discard</button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

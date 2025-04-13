@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Live Streams{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Currently Live Streams</h3>
+            </div>
+            <div class="card-body">
+                {% if live_streams %}
+                    <div class="row">
+                        {% for stream in live_streams %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ stream.title }}</h5>
+                                        <p class="card-text">Streaming by {{ stream.user.username }}</p>
+                                        <a href="{% url 'stream_view' stream.stream_key %}" class="btn btn-primary">
+                                            Watch Now
+                                        </a>
+                                    </div>
+                                    <div class="card-footer text-muted">
+                                        Started {{ stream.start_time|timesince }} ago
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No one is currently live. Be the first to <a href="{% url 'go_live' %}">go live</a>!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
